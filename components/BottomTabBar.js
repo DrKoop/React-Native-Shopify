@@ -1,22 +1,58 @@
-
 import React from "react";
-import { View, TouchableOpacity, Text, Image } from "react-native";
+import { View, TouchableOpacity, Text, Image, Animated } from "react-native";
 
 const BottomTabBar = ({ navigation }) => {
+    
+  const scaleValue = React.useRef(new Animated.Value(1)).current;
+  const opacityValue = React.useRef(new Animated.Value(1)).current;
+
+  const handlePress = (screenName) => {
+    Animated.parallel([
+      Animated.timing(scaleValue, {
+        toValue: 0.8,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacityValue, {
+        toValue: 0.5,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      navigation.navigate(screenName);
+      Animated.parallel([
+        Animated.timing(scaleValue, {
+          toValue: 1,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacityValue, {
+          toValue: 1,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    });
+  };
+
   return (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={() => navigation.navigate("Categories")}>
-        <Image source={require("../assets/home.png")} style={styles.icon} />
+    <View style={[styles.container, { backgroundColor: `rgba(0.25, 100 , .50 , 0.5) ${opacityValue})` }]}>
+      <TouchableOpacity onPress={() => handlePress("Categories")}>
+        <Animated.Image
+          source={require("../assets/home.png")}
+          style={[styles.icon, { transform: [{ scale: scaleValue }] }]}
+        />
         <Text style={styles.text}>Categorías</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
-        <Image source={require("../assets/home.png")} style={styles.icon} />
-        <Text style={styles.text}>Perfil</Text>
+      <TouchableOpacity onPress={() => handlePress("Carrito")}>
+        <Animated.Image
+          source={require("../assets/carrito.png")}
+          style={[styles.icon, { transform: [{ scale: scaleValue }] }]}
+        />
+        <Text style={styles.text}>Carrito</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate("Settings")}>
-        <Image source={require("../assets/home.png")} style={styles.icon} />
-        <Text style={styles.text}>Ajustes</Text>
-      </TouchableOpacity>
+
+
     </View>
   );
 };
@@ -27,7 +63,6 @@ const styles = {
     justifyContent: "space-around",
     alignItems: "center",
     height: 60,
-    backgroundColor: "green",
     position: "absolute",
     bottom: 0,
     left: 0,
