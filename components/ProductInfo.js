@@ -1,29 +1,28 @@
 import React from "react";
-import { getProducts } from "../api/ShopifyAPI";
+import { Text, View, Image } from "react-native";
+import { selectedProduct } from "./ProductList"
 
-const ProductInfo = () => {
-  const [products, setProducts] = React.useState([]);
+const ProductInfo = ({ selectedProduct }) => {
 
-  React.useEffect(() => {
-    const fetchProducts = async () => {
-      const data = await getProducts();
-      setProducts(data);
-    };
+  /* console.log(selectedProduct) */
 
-    fetchProducts();
-  }, []);
+  if (!selectedProduct) {
+    return <Text>Error no se esta pasando</Text>;
+  }
+
+  const { title, variants, description, images } = selectedProduct;
+  const price = variants?.length > 0 ? variants[0].price : null;
+  const imageSrc = images?.length > 0 ? images[0].src : null;
 
   return (
-    <div>
-      {products.map((product) => (
-        <div key={product.id}>
-          <img src={product.images[0].src} alt={product.title} />
-          <h2>{product.title}</h2>
-          <p>Precio: {product.variants[0].price}</p>
-          {product.description && <p>{product.description}</p>}
-        </div>
-      ))}
-    </div>
+    <View>
+      {imageSrc && (
+        <Image source={{ uri: imageSrc }} style={{ width: 100, height: 100 }} />
+      )}
+      <Text>{title}</Text>
+      {price && <Text>Precio: {price}</Text>}
+      <Text>{description}</Text>
+    </View>
   );
 };
 

@@ -13,7 +13,7 @@ const SplashScreen = ({ navigation }) => {
 
 
     const handleHomeScreen = () => {
-        nav.navigate('Categories');
+        nav.navigate('Products');
     };
 
 /*   useEffect(() => {
