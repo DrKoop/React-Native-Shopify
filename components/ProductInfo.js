@@ -1,24 +1,32 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Text, View, Image } from "react-native";
-import { selectedProduct } from "./ProductList"
+import { getProduct } from "../api/ShopifyAPI";
 
-const ProductInfo = ({ selectedProduct }) => {
+const ProductInfo = ({ route }) => {
+  const { productId } = route.params;
+  const [product, setProduct] = useState(null);
 
-  /* console.log(selectedProduct) */
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const productData = await getProduct(productId);
+        setProduct(productData);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchProduct();
+  }, [productId]);
 
-  if (!selectedProduct) {
-    return <Text>Error no se esta pasando</Text>;
-  }
+  if (!product) return <Text>Cargando...</Text>;
 
-  const { title, variants, description, images } = selectedProduct;
-  const price = variants?.length > 0 ? variants[0].price : null;
-  const imageSrc = images?.length > 0 ? images[0].src : null;
+  const { title, variants, description, images } = product;
+  const price = variants?.[0]?.price || null;
+  const imageSrc = images?.[0]?.src || null;
 
   return (
     <View>
-      {imageSrc && (
-        <Image source={{ uri: imageSrc }} style={{ width: 100, height: 100 }} />
-      )}
+      {imageSrc && <Image source={{ uri: imageSrc }} style={{ width: 100, height: 100 }} />}
       <Text>{title}</Text>
       {price && <Text>Precio: {price}</Text>}
       <Text>{description}</Text>
