@@ -1,45 +1,55 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet,Button, useWindowDimensions } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
-import animacionImg from '../assets/animation_shop.json'
+import * as Animatable from 'react-native-animatable';
+import animacionImg from '../assets/animation_shop.json';
 
+const SplashScreen = () => {
+  const nav = useNavigation();
+  const handleHomeScreen = () => {
+    nav.navigate('Products');
+  };
 
+  const animatedValue = useRef(new Animated.Value(0)).current;
 
-const SplashScreen = ({ navigation }) => {
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(animatedValue, {
+        toValue: 1,
+        duration: 3000,
+        useNativeDriver: false,
+      })
+    ).start();
+  }, []);
 
-
-    const nav = useNavigation(); 
-
-
-    const handleHomeScreen = () => {
-        nav.navigate('Products');
-    };
-
-/*   useEffect(() => {
-    setTimeout(() => {
-      navigation.navigate('Categories');
-    }, 1000); // 2000ms = 2 segundos
-  }, []); */
-
-  const { width } = useWindowDimensions();
-
-
+  const backgroundColor = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['#07575b', '#003b46'],
+  });
 
   return (
-    <>
-      <View style={styles.container} >
-        <Text style={styles.text} >Bienvenido Koop!</Text>
-        <LottieView
-          style={styles.animation}
-          source={require('../assets/animation_shop.json')}
-          autoPlay
-          loop
-        />
-        <Button title="Ver Menu"  style={styles.button} onPress={ handleHomeScreen } />
-      </View>
-      
-    </>
+    <Animated.View style={[styles.container, { backgroundColor }]}>
+      <Text style={styles.text}>¡Bienvenido Koop!</Text>
+      <LottieView
+        style={styles.animation}
+        source={animacionImg}
+        autoPlay
+        loop
+      />
+      <TouchableOpacity
+        style={styles.buttonContainer}
+        onPress={handleHomeScreen}
+      >
+        <Animatable.Text
+          animation="pulse"
+          iterationCount="infinite"
+          style={styles.buttonText}
+        >
+          Ver Menú
+        </Animatable.Text>
+      </TouchableOpacity>
+    </Animated.View>
   );
 };
 
@@ -47,27 +57,35 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor : '#0B8926',
     marginBottom: 20,
   },
   animation: {
     padding: 20,
   },
   text: {
-    fontSize: 40,
+    fontSize: 30,
+    color: '#fff',
     fontWeight: 'bold',
-    justifyContent : 'center',
+    justifyContent: 'center',
+    textTransform: 'uppercase',
     marginTop: 500,
     marginBottom: 12,
   },
-  button:{
-    justifyContent : 'center',
+  buttonContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
     marginBottom: 20,
-  }
-  
+    backgroundColor: '#66a5ad',
+    borderRadius: 10,
+    width: 230,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+  },
 });
-
-
-
 
 export default SplashScreen;
