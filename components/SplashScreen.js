@@ -1,12 +1,15 @@
+
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
 import * as Animatable from 'react-native-animatable';
 import animacionImg from '../assets/animation_shop.json';
+import backgroundLottie from '../assets/background_4.json';
 
 const SplashScreen = () => {
   const nav = useNavigation();
+
   const handleHomeScreen = () => {
     nav.navigate('Products');
   };
@@ -17,7 +20,7 @@ const SplashScreen = () => {
     Animated.loop(
       Animated.timing(animatedValue, {
         toValue: 1,
-        duration: 3000,
+        duration: 4000,
         useNativeDriver: false,
       })
     ).start();
@@ -30,10 +33,16 @@ const SplashScreen = () => {
 
   return (
     <Animated.View style={[styles.container, { backgroundColor }]}>
-      <Text style={styles.text}>¡Bienvenido Koop!</Text>
+      <Text style={styles.text}>¡Bienvenido!</Text>
       <LottieView
         style={styles.animation}
         source={animacionImg}
+        autoPlay
+        loop
+      />
+      <LottieView
+        style={[styles.animation2, { position: 'absolute', flex: 1 }]}
+        source={backgroundLottie}
         autoPlay
         loop
       />
@@ -61,6 +70,10 @@ const styles = StyleSheet.create({
   },
   animation: {
     padding: 20,
+  },
+  animation2: {
+    width: '100%',
+    height: '100%',
   },
   text: {
     fontSize: 30,

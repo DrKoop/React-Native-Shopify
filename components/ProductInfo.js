@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Text, View, Image, Button, StyleSheet, Dimensions } from "react-native";
 import { getProduct } from "../api/ShopifyAPI";
+import Spinner from "./Spinner";
+
 
 const ProductInfo = ({ route, navigation }) => {
   const { productId } = route.params;
   const [product, setProduct] = useState(null);
-
+  const [showSpinner, setShowSpinner] = useState(true);
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -17,22 +19,24 @@ const ProductInfo = ({ route, navigation }) => {
     };
     fetchProduct();
   }, [productId]);
-
-  if (!product) return <Text>Cargando...</Text>;
-
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSpinner(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+  if (showSpinner) return <Spinner />;
+  // Resto del código cuando el spinner ya no se muestra
   const { title, variants, images, body_html } = product;
   const price = variants?.[0]?.price || null;
   const imageSrc = images?.[0]?.src || null;
-
   // Eliminar etiquetas HTML del body_html
   const cleanBodyHtml = body_html.replace(/<[^>]+>/g, "");
-
   const handleGoBack = () => {
     navigation.goBack();
   };
-
   const handleAddToCart = (productId) => {
-    //console.log(productId);
+    navigation.navigate("Cart");
   };
 
   return (
@@ -60,7 +64,6 @@ const ProductInfo = ({ route, navigation }) => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -107,5 +110,4 @@ const styles = StyleSheet.create({
     width: 20,
   },
 });
-
 export default ProductInfo;

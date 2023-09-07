@@ -2,7 +2,6 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import SplashScreen from './components/SplashScreen';
-import HomeScreen from './components/HomeScreen';
 import CartScreen from './components/CartScreen';
 import ProductInfo from './components/ProductInfo';
 import ProductList from './components/ProductList';
@@ -16,7 +15,6 @@ const App = () => {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Splash">
         <Stack.Screen name="Splash" component={SplashScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Products" component={ProductList} />
         <Stack.Screen name="Cart" component={CartScreen} />
         <Stack.Screen name="ProductInfo" component={ProductInfo} />

@@ -33,9 +33,8 @@ export const getProduct = async (productId) => {
     const filteredData = allData.flatMap((data) => data.products);
     const product = filteredData.find((product) => product.id === productId);
 
-
-
     return product;
+    
   } catch (error) {
     console.error('Error al obtener el producto:', error);
     return null;
