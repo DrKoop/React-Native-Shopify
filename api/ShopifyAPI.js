@@ -32,21 +32,28 @@ export const getProduct = async (productId) => {
     const allData = await getProducts();
     const filteredData = allData.flatMap((data) => data.products);
     const product = filteredData.find((product) => product.id === productId);
-
     return product;
-    
   } catch (error) {
     console.error('Error al obtener el producto:', error);
     return null;
   }
 };
 
-export const addToCart = async (productId) => {
+export const addToCart = async (selectedItems) => {
   try {
-    // Lógica para agregar un producto al carrito de compras
+    if (!Array.isArray(selectedItems)) {
+      throw new Error('selectedItems no es un array válido');
+    }
+
+    const allData = await getProducts();
+    const filteredData = allData.flatMap((data) => data.products);
+    const selectedProducts = filteredData.filter((product) =>
+      selectedItems.includes(product.id)
+    );
+
+    return selectedProducts;
   } catch (error) {
-    console.error('Error al agregar el producto al carrito:', error);
+    console.error('Error al agregar los productos al carrito:', error);
+    return [];
   }
 };
-
-// Otras funciones relacionadas con la API de Shopify

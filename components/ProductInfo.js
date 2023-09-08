@@ -5,10 +5,13 @@ import Spinner from "./Spinner";
 
 
 const ProductInfo = ({ route, navigation }) => {
+
   const { productId } = route.params;
   const [product, setProduct] = useState(null);
   const [showSpinner, setShowSpinner] = useState(true);
+  
   useEffect(() => {
+
     const fetchProduct = async () => {
       try {
         const productData = await getProduct(productId);
@@ -19,12 +22,14 @@ const ProductInfo = ({ route, navigation }) => {
     };
     fetchProduct();
   }, [productId]);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSpinner(false);
     }, 1000);
     return () => clearTimeout(timer);
   }, []);
+
   if (showSpinner) return <Spinner />;
   // Resto del código cuando el spinner ya no se muestra
   const { title, variants, images, body_html } = product;
