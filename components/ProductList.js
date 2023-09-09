@@ -12,11 +12,7 @@ const ProductList = () => {
   const [showBottomTabBar, setShowBottomTabBar] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [scrollY] = useState(new Animated.Value(0));
-  const [selectedItems, setSelectedItems] = useState([]);
 
-  useEffect(() => {
-    console.log(selectedItems);
-  }, [selectedItems]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -33,7 +29,6 @@ const ProductList = () => {
         }, 1000);
       }
     };
-
     fetchProducts();
   }, []);
 
@@ -44,9 +39,8 @@ const ProductList = () => {
   }, [navigation]);
 
   const handleAddToCart = useCallback((productId) => {
-    addToCart(productId);
-    setSelectedItems((prevItems) => [...prevItems, productId]);
-    navigation.navigate("Cart", { productID: productId });
+    console.log(productId)
+    navigation.navigate("Cart", { productId });
   }, [navigation]);
 
   const renderProduct = useCallback(({ item, index }) => {

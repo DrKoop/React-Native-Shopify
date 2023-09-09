@@ -9,6 +9,8 @@ const ProductInfo = ({ route, navigation }) => {
   const { productId } = route.params;
   const [product, setProduct] = useState(null);
   const [showSpinner, setShowSpinner] = useState(true);
+
+  //console.log(productId)
   
   useEffect(() => {
 

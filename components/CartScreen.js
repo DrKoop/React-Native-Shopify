@@ -1,60 +1,38 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Text, View, Image, Button, FlatList, StyleSheet, Dimensions, Animated } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import React, { useEffect, useState } from "react";
+import { Text, View, Image, Button, StyleSheet } from "react-native";
+import { getProduct } from "../api/ShopifyAPI";
 
-const CartScreen = () => {
-  
-  const [products, setProducts] = useState([]);
-  const [showBottomTabBar, setShowBottomTabBar] = useState(true);
-  const [isLoading, setIsLoading] = useState(true);
-  const [scrollY] = useState(new Animated.Value(0));
-  const [selectedItems, setSelectedItems] = useState([]);
+const CartScreen = ({ route, navigation }) => {
 
-  useEffect(() => {
-    console.log(selectedItems);
-  }, [selectedItems]);
+  const { productId } = route.params;
+  const [product, setProduct] = useState(null);
+
+  console.log(`ìd de carrito : ${productId}`)
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchProduct = async () => {
       try {
-        setIsLoading(true);
-        const allData = await getProducts();
-        const products = allData.flatMap((data) => data.products);
-        setProducts(products);
+        const productData = await getProduct(productId);
+        setProduct(productData);
+        console.log(`Desde carrito : ${productData}` )
       } catch (error) {
         console.log(error);
-      } finally {
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 1000);
       }
     };
-    fetchProducts();
-  }, []);
+    fetchProduct();
+  }, [productId]);
 
-  const navigation = useNavigation();
+  const { title, variants, images} = product || {};
+  const price = variants?.[0]?.price || null;
+  const imageSrc = images?.[0]?.src || null;
 
-  const handleViewProduct = useCallback((productId) => {
-    navigation.navigate("ProductInfo", { productId });
-  }, [navigation]);
+  const handleGoBack = () => {
+    navigation.goBack();
+  };
 
-  const handleAddToCart = useCallback((productId) => {
-    addToCart(productId);
-    setSelectedItems((prevItems) => [...prevItems, productId]);
-    navigation.navigate("Cart", { productID: productId });
-  }, [navigation]);
 
-  const renderProduct = useCallback(({ item, index }) => {
-    const { id, title, images, variants } = item;
-    const imageSrc = images?.[0]?.src;
-    const price = variants?.[0]?.price;
-
-    if (!title || !price) {
-      return null;
-    }
-
-    return (
-      <View key={`${id}_${index}`} style={styles.productContainer}>
+  return (
+      <View style={styles.container}>
         {imageSrc && (
           <Image
             source={{ uri: imageSrc }}
@@ -63,69 +41,43 @@ const CartScreen = () => {
           />
         )}
         <Text style={styles.title}>{title}</Text>
-        {price && <Text style={styles.price}>Precio: <Text>{price}</Text></Text>}
+        {price && <Text style={styles.price}>Precio: {price}</Text>}
         <View style={styles.buttonContainer}>
-          <Button title="Ver Producto" onPress={() => handleViewProduct(id)} />
-          <View style={styles.buttonSeparator} />
-          <Button title="Agregar al carrito" onPress={() => handleAddToCart(id)} />
+          <Button title="Volver" onPress={handleGoBack} />
         </View>
       </View>
-    );
-  }, [handleViewProduct, handleAddToCart]);
-
-  const handleScroll = (event) => {
-    const offsetY = event.nativeEvent.contentOffset.y;
-    const contentHeight = event.nativeEvent.contentSize.height;
-    const containerHeight = event.nativeEvent.layoutMeasurement.height;
-
-    if (offsetY > 0 && offsetY + containerHeight >= contentHeight) {
-      setShowBottomTabBar(false);
-    } else {
-      setShowBottomTabBar(true);
-    }
-  };
-
-
-
-  return (
-    <>
-      <FlatList
-        data={selectedItems}
-        renderItem={renderProduct}
-        keyExtractor={(item) => item?.id?.toString() ?? ""}
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
-      />
-      
-    </>
   );
+
 };
 
 const styles = StyleSheet.create({
-  productContainer: {
-    marginBottom: 20,
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
   image: {
-    width: Dimensions.get("window").width,
-    height: Dimensions.get("window").height / 2,
+    width: 100,
+    height: 100,
   },
   title: {
-    fontSize: 22,
-    textAlign: "center",
+    fontSize: 24,
+    fontWeight: "bold",
+    marginTop: 10,
   },
   price: {
     fontSize: 20,
+    marginTop: 5,
+  },
+  description: {
     textAlign: "center",
-    fontWeight: "bold",
   },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 10,
+    marginTop: 25,
   },
-  buttonSeparator: {
-    width: 20,
-  },
+
 });
 
 export default CartScreen;
