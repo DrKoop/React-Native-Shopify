@@ -39,21 +39,32 @@ export const getProduct = async (productId) => {
   }
 };
 
-export const addToCart = async (selectedItems) => {
-  try {
-    if (!Array.isArray(selectedItems)) {
-      throw new Error('selectedItems no es un array válido');
-    }
 
+
+export const addToCart = async (cartItems) => {
+  try {
+    if (!Array.isArray(cartItems)) {
+      throw new Error('cartItems is not a valid array');
+    }
     const allData = await getProducts();
     const filteredData = allData.flatMap((data) => data.products);
-    const selectedProducts = filteredData.filter((product) =>
-      selectedItems.includes(product.id)
-    );
 
-    return selectedProducts;
+
+    const updatedFilteredData = filteredData.map((product) => {
+      if ( cartItems ) {
+        return {
+          ...product,
+          id: product.id + 1
+        };
+      }
+      return product;
+    });
+
+    //console.log(`desde API: ${updatedFilteredData}`);
+    
+    return updatedFilteredData;
   } catch (error) {
-    console.error('Error al agregar los productos al carrito:', error);
+    console.error('Error adding products to cart:', error.message);
     return [];
   }
 };

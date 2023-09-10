@@ -9,10 +9,10 @@ const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
+  const [cartItems, setCartItems] = useState([]);
   const [showBottomTabBar, setShowBottomTabBar] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [scrollY] = useState(new Animated.Value(0));
-
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -38,20 +38,22 @@ const ProductList = () => {
     navigation.navigate("ProductInfo", { productId });
   }, [navigation]);
 
-  const handleAddToCart = useCallback((productId) => {
-    console.log(productId)
-    navigation.navigate("Cart", { productId });
-  }, [navigation]);
+  const handleAddToCart = useCallback(() => {
+    setCartItems((prevItems) => [...prevItems, ...products.map((product) => product.id)]);
+    navigation.navigate("Cart", { cartItems : cartItems });
+  }, [navigation, products, cartItems]);
+
+  useEffect(() => {
+    console.log(`acumula : ${cartItems}`);
+  }, [cartItems]);
 
   const renderProduct = useCallback(({ item, index }) => {
     const { id, title, images, variants } = item;
     const imageSrc = images?.[0]?.src;
     const price = variants?.[0]?.price;
-
     if (!title || !price) {
       return null;
     }
-
     return (
       <View key={`${id}_${index}`} style={styles.productContainer}>
         {imageSrc && (
@@ -66,7 +68,7 @@ const ProductList = () => {
         <View style={styles.buttonContainer}>
           <Button title="Ver Producto" onPress={() => handleViewProduct(id)} />
           <View style={styles.buttonSeparator} />
-          <Button title="Agregar al carrito" onPress={() => handleAddToCart(id)} />
+          <Button title="Agregar al carrito" onPress={handleAddToCart} />
         </View>
       </View>
     );
@@ -76,7 +78,6 @@ const ProductList = () => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const contentHeight = event.nativeEvent.contentSize.height;
     const containerHeight = event.nativeEvent.layoutMeasurement.height;
-
     if (offsetY > 0 && offsetY + containerHeight >= contentHeight) {
       setShowBottomTabBar(false);
     } else {
