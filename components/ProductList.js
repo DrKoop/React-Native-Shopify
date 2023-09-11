@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { LogBox } from "react-native";
 import { Text, View, Image, Button, FlatList, StyleSheet, Dimensions, Animated } from "react-native";
 import { getProducts } from "../api/ShopifyAPI";
 import { useNavigation } from "@react-navigation/native";
@@ -6,12 +7,18 @@ import BottomTabBar from "./BottomTabBar";
 import Spinner from "./Spinner";
 import Global from "../Globals";
 
+
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
 const ProductList = () => {
 
+/*   const { deletedProducts } = route.params;
 
-  //console.log(`ID eliminados desde productlist :  ${Global.deletedProductsGlobal}`);
+  console.log(`ID eliminados desde productlist :  ${deletedProducts}`); */
+
+  const updateIDElimnados = Global.deletedProductsGlobal
+
+  console.log(`ID eliminados desde productlist :  ${updateIDElimnados}`);
 
   const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState(new Set());
@@ -43,6 +50,7 @@ const ProductList = () => {
     navigation.navigate("ProductInfo", { productId, cartItems: Array.from(cartItems) });
   }, [navigation, cartItems]);
 
+
   const handleAddToCart = useCallback(() => {
     setCartItems((prevItems) => {
       const newItems = new Set(prevItems);
@@ -52,15 +60,7 @@ const ProductList = () => {
     navigation.navigate("Cart", { cartItems: Array.from(cartItems) });
   }, [navigation, products, cartItems]);
 
-  useEffect(() => {
-    console.log(`acumula: ${Array.from(cartItems)}`);
-  }, [cartItems]);
 
-
-/*   useEffect(() => {
-    // Aquí puedes utilizar la variable deletedProducts
-    console.log(`Desde carrito id's eliminados : ${deletedProducts}`);
-  }, [deletedProducts]); */
 
   const renderProduct = useCallback(({ item, index }) => {
     const { id, title, images, variants } = item;

@@ -95,7 +95,7 @@ const CartScreen = ({ route, navigation }) => {
   };
 
   const handleGoBack = () => {
-    navigation.navigate("ProductList", { deletedProducts } );
+    navigation.navigate("ProductList",  { deletedProducts: deletedProducts } );
   };
 
   

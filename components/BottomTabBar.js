@@ -1,11 +1,12 @@
 import React from "react";
 import { View, TouchableOpacity, Text, Animated } from "react-native";
+import Global from "../Globals";
 
 const BottomTabBar = ({ navigation, cartItems,   }) => {
   const scaleValue = React.useRef(new Animated.Value(1)).current;
   const opacityValue = React.useRef(new Animated.Value(1)).current;
 
-  console.log(); 
+  console.log(`ID eliminados desde BottomTabBar :  ${Global.deletedProductsGlobal}`); 
 
   const handlePress = (screenName) => {
     Animated.parallel([
