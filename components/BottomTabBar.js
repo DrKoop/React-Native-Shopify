@@ -1,12 +1,13 @@
 import React from "react";
 import { View, TouchableOpacity, Text, Image, Animated } from "react-native";
 
-const BottomTabBar = ({ navigation }) => {
-    
+const BottomTabBar = ({ navigation, cartItems }) => {
   const scaleValue = React.useRef(new Animated.Value(1)).current;
   const opacityValue = React.useRef(new Animated.Value(1)).current;
 
   const handlePress = (screenName) => {
+    console.log(screenName);
+
     Animated.parallel([
       Animated.timing(scaleValue, {
         toValue: 0.8,
@@ -19,7 +20,8 @@ const BottomTabBar = ({ navigation }) => {
         useNativeDriver: true,
       }),
     ]).start(() => {
-      navigation.navigate(screenName);
+
+
       Animated.parallel([
         Animated.timing(scaleValue, {
           toValue: 1,
@@ -37,22 +39,24 @@ const BottomTabBar = ({ navigation }) => {
 
   return (
     <View style={[styles.container, { backgroundColor: `rgba(0.25, 100 , .50 , 0.5) ${opacityValue})` }]}>
-      <TouchableOpacity onPress={() => handlePress("Categories")}>
-        <Animated.Image
-          source={require("../assets/home.png")}
-          style={[styles.icon, { transform: [{ scale: scaleValue }] }]}
-        />
-        <Text style={styles.text}>Categorías</Text>
+      <TouchableOpacity onPress={() => handlePress("Products")}>
+        <Animated.View style={[styles.iconContainer, { transform: [{ scale: scaleValue }] }]}>
+          <Animated.Image
+            source={require("../assets/home.png")}
+            style={styles.icon}
+          />
+        </Animated.View>
+        <Text style={styles.text}>Home</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => handlePress("Carrito")}>
-        <Animated.Image
-          source={require("../assets/carrito.png")}
-          style={[styles.icon, { transform: [{ scale: scaleValue }] }]}
-        />
+      <TouchableOpacity onPress={() => navigation.navigate("Cart", { cartItems: cartItems })}>
+        <Animated.View style={[styles.iconContainer, { transform: [{ scale: scaleValue }] }]}>
+          <Animated.Image
+            source={require("../assets/carrito.png")}
+            style={styles.icon}
+          />
+        </Animated.View>
         <Text style={styles.text}>Carrito</Text>
       </TouchableOpacity>
-
-
     </View>
   );
 };
@@ -67,6 +71,16 @@ const styles = {
     bottom: 0,
     left: 0,
     right: 0,
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
+    marginTop: 2,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
   },
   icon: {
     width: 24,

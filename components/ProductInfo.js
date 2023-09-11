@@ -6,11 +6,10 @@ import Spinner from "./Spinner";
 
 const ProductInfo = ({ route, navigation }) => {
 
-  const { productId } = route.params;
+  const { productId, cartItems } = route.params;
+
   const [product, setProduct] = useState(null);
   const [showSpinner, setShowSpinner] = useState(true);
-
-  //console.log(productId)
   
   useEffect(() => {
 
@@ -42,9 +41,6 @@ const ProductInfo = ({ route, navigation }) => {
   const handleGoBack = () => {
     navigation.goBack();
   };
-  const handleAddToCart = (productId) => {
-    navigation.navigate("Cart");
-  };
 
   return (
     <View style={styles.container}>
@@ -65,7 +61,7 @@ const ProductInfo = ({ route, navigation }) => {
         <View style={styles.buttonSeparator} />
         <Button
           title="Agregar al carrito"
-          onPress={() => handleAddToCart(productId)}
+          onPress={() => navigation.navigate("Cart", { cartItems: cartItems })}
         />
       </View>
     </View>

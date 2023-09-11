@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Text, View, Image, Button, FlatList, StyleSheet, Dimensions, Animated } from "react-native";
-import { getProducts, addToCart } from "../api/ShopifyAPI";
+import { getProducts } from "../api/ShopifyAPI";
 import { useNavigation } from "@react-navigation/native";
 import BottomTabBar from "./BottomTabBar";
 import Spinner from "./Spinner";
@@ -8,8 +8,9 @@ import Spinner from "./Spinner";
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
 const ProductList = () => {
+
   const [products, setProducts] = useState([]);
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState(new Set());
   const [showBottomTabBar, setShowBottomTabBar] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [scrollY] = useState(new Animated.Value(0));
@@ -35,16 +36,20 @@ const ProductList = () => {
   const navigation = useNavigation();
 
   const handleViewProduct = useCallback((productId) => {
-    navigation.navigate("ProductInfo", { productId });
+    navigation.navigate("ProductInfo", { productId, cartItems: Array.from(cartItems) });
   }, [navigation]);
 
   const handleAddToCart = useCallback(() => {
-    setCartItems((prevItems) => [...prevItems, ...products.map((product) => product.id)]);
-    navigation.navigate("Cart", { cartItems : cartItems });
+    setCartItems((prevItems) => {
+      const newItems = new Set(prevItems);
+      products.forEach((product) => newItems.add(product.id));
+      return newItems;
+    });
+    navigation.navigate("Cart", { cartItems: Array.from(cartItems) });
   }, [navigation, products, cartItems]);
 
   useEffect(() => {
-    console.log(`acumula : ${cartItems}`);
+    console.log(`acumula: ${Array.from(cartItems)}`);
   }, [cartItems]);
 
   const renderProduct = useCallback(({ item, index }) => {
@@ -105,7 +110,7 @@ const ProductList = () => {
         )}
         scrollEventThrottle={16}
       />
-      {showBottomTabBar && <BottomTabBar />}
+      {showBottomTabBar && <BottomTabBar navigation={navigation} cartItems={Array.from(cartItems)} />}
     </>
   );
 };
