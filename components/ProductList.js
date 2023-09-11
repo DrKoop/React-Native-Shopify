@@ -4,10 +4,15 @@ import { getProducts } from "../api/ShopifyAPI";
 import { useNavigation } from "@react-navigation/native";
 import BottomTabBar from "./BottomTabBar";
 import Spinner from "./Spinner";
+import Global from "../Globals";
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
-const ProductList = () => {
+const ProductList = ({ route }) => {
+
+  /* const { deletedProducts } = route.params; */
+
+  console.log(`ID eliminados desde productlist :  ${Global.deletedProductsGlobal}`);
 
   const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState(new Set());
@@ -37,7 +42,7 @@ const ProductList = () => {
 
   const handleViewProduct = useCallback((productId) => {
     navigation.navigate("ProductInfo", { productId, cartItems: Array.from(cartItems) });
-  }, [navigation]);
+  }, [navigation, cartItems]);
 
   const handleAddToCart = useCallback(() => {
     setCartItems((prevItems) => {
@@ -51,6 +56,12 @@ const ProductList = () => {
   useEffect(() => {
     console.log(`acumula: ${Array.from(cartItems)}`);
   }, [cartItems]);
+
+
+/*   useEffect(() => {
+    // Aquí puedes utilizar la variable deletedProducts
+    console.log(`Desde carrito id's eliminados : ${deletedProducts}`);
+  }, [deletedProducts]); */
 
   const renderProduct = useCallback(({ item, index }) => {
     const { id, title, images, variants } = item;

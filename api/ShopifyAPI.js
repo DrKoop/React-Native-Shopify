@@ -63,6 +63,8 @@ export const addToCart = async (cartItems) => {
     //console.log(`desde API: ${updatedFilteredData}`);
     
     return updatedFilteredData;
+
+    
   } catch (error) {
     console.error('Error adding products to cart:', error.message);
     return [];

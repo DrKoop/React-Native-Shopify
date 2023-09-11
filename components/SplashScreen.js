@@ -9,7 +9,7 @@ const SplashScreen = () => {
   const nav = useNavigation();
 
   const handleHomeScreen = () => {
-    nav.navigate('Products');
+    nav.navigate('ProductList');
   };
 
   const animatedValue = useRef(new Animated.Value(0)).current;

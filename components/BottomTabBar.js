@@ -39,7 +39,7 @@ const BottomTabBar = ({ navigation, cartItems }) => {
 
   return (
     <View style={[styles.container, { backgroundColor: `rgba(0.25, 100 , .50 , 0.5) ${opacityValue})` }]}>
-      <TouchableOpacity onPress={() => handlePress("Products")}>
+      <TouchableOpacity onPress={() => handlePress("ProductList")}>
         <Animated.View style={[styles.iconContainer, { transform: [{ scale: scaleValue }] }]}>
           <Animated.Image
             source={require("../assets/home.png")}
