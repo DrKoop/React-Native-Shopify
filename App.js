@@ -6,6 +6,7 @@ import CartScreen from './components/CartScreen';
 import ProductInfo from './components/ProductInfo';
 import ProductList from './components/ProductList';
 
+
 const Stack = createStackNavigator();
 
 const App = () => {

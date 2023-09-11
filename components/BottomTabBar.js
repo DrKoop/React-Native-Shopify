@@ -1,13 +1,13 @@
 import React from "react";
-import { View, TouchableOpacity, Text, Image, Animated } from "react-native";
+import { View, TouchableOpacity, Text, Animated } from "react-native";
 
-const BottomTabBar = ({ navigation, cartItems }) => {
+const BottomTabBar = ({ navigation, cartItems,   }) => {
   const scaleValue = React.useRef(new Animated.Value(1)).current;
   const opacityValue = React.useRef(new Animated.Value(1)).current;
 
-  const handlePress = (screenName) => {
-    console.log(screenName);
+  console.log(); 
 
+  const handlePress = (screenName) => {
     Animated.parallel([
       Animated.timing(scaleValue, {
         toValue: 0.8,
@@ -39,6 +39,7 @@ const BottomTabBar = ({ navigation, cartItems }) => {
 
   return (
     <View style={[styles.container, { backgroundColor: `rgba(0.25, 100 , .50 , 0.5) ${opacityValue})` }]}>
+
       <TouchableOpacity onPress={() => handlePress("ProductList")}>
         <Animated.View style={[styles.iconContainer, { transform: [{ scale: scaleValue }] }]}>
           <Animated.Image
@@ -48,6 +49,7 @@ const BottomTabBar = ({ navigation, cartItems }) => {
         </Animated.View>
         <Text style={styles.text}>Home</Text>
       </TouchableOpacity>
+      {/* VLogica variable cartItems actualizada , aqui */}
       <TouchableOpacity onPress={() => navigation.navigate("Cart", { cartItems: cartItems })}>
         <Animated.View style={[styles.iconContainer, { transform: [{ scale: scaleValue }] }]}>
           <Animated.Image
@@ -57,6 +59,7 @@ const BottomTabBar = ({ navigation, cartItems }) => {
         </Animated.View>
         <Text style={styles.text}>Carrito</Text>
       </TouchableOpacity>
+
     </View>
   );
 };

@@ -22,7 +22,6 @@
     "react-native-gesture-handler": "^2.12.1",
     "react-native-reanimated": "^3.4.2",
     "react-native-screens": "^3.24.0",
-    "react-native-toast-message": "^2.1.6",
     "react-navigation": "^4.4.4",
     "react-navigation-stack": "^2.10.4"
   },

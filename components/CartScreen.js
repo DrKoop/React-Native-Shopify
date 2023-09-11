@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Text, View, Image, Button, StyleSheet, FlatList } from "react-native";
 import { addToCart } from "../api/ShopifyAPI";
-import Toast from "react-native-toast-message";
 import Global from "../Globals";
 
 const CartScreen = ({ route, navigation }) => {
@@ -28,16 +27,6 @@ const CartScreen = ({ route, navigation }) => {
     fetchProduct();
   }, [cartItems]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      Toast.show({
-        type: "info",
-        text1: "Su Carrito de Compras está esperando",
-        visibilityTime: 60000,
-      });
-    }, 1000); // 1 minuto
-    return () => clearTimeout(timer);
-  }, []);
 
   useEffect(() => {
     Global.deletedProductsGlobal = deletedProducts;

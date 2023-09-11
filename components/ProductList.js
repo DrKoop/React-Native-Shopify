@@ -8,11 +8,10 @@ import Global from "../Globals";
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
-const ProductList = ({ route }) => {
+const ProductList = () => {
 
-  /* const { deletedProducts } = route.params; */
 
-  console.log(`ID eliminados desde productlist :  ${Global.deletedProductsGlobal}`);
+  //console.log(`ID eliminados desde productlist :  ${Global.deletedProductsGlobal}`);
 
   const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState(new Set());
