@@ -39,19 +39,26 @@ export const getProduct = async (productId) => {
   }
 };
 
-
-
 export const addToCart = async (cartItems) => {
   try {
     if (!Array.isArray(cartItems)) {
       throw new Error('cartItems is not a valid array');
     }
+
     const allData = await getProducts();
     const filteredData = allData.flatMap((data) => data.products);
 
+    const groupedData = filteredData.reduce((acc, product) => {
+      const existingProduct = acc.find((p) => p.id === product.id);
+      if (existingProduct) {
+        return acc;
+      } else {
+        return [...acc, product];
+      }
+    }, []);
 
-    const updatedFilteredData = filteredData.map((product) => {
-      if ( cartItems ) {
+    const updatedFilteredData = groupedData.map((product) => {
+      if (cartItems) {
         return {
           ...product,
           id: product.id + 1
@@ -60,13 +67,9 @@ export const addToCart = async (cartItems) => {
       return product;
     });
 
-    //console.log(`desde API: ${updatedFilteredData}`);
-    
     return updatedFilteredData;
-
-    
   } catch (error) {
-    console.error('Error adding products to cart:', error.message);
+    console.error('Error al agregar productos al carrito:', error.message);
     return [];
   }
 };

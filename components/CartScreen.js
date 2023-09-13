@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Text, View, Image, Button, StyleSheet, FlatList } from "react-native";
 import { addToCart } from "../api/ShopifyAPI";
-import Global from "../Globals";
 
 const CartScreen = ({ route, navigation }) => {
   const { cartItems } = route.params;
   const [cartProducts, setCartProducts] = useState([]);
   const [productCounts, setProductCounts] = useState({});
   const [deletedProducts, setDeletedProducts] = useState([]);
-  const [deletedProductsGlobal, setDeletedProductsGlobal] = useState([]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -16,7 +15,7 @@ const CartScreen = ({ route, navigation }) => {
         const productData = await addToCart(cartItems);
         const counts = {};
         productData.forEach((product) => {
-          counts[product.id] = 1;
+          counts[product.id] = productCounts[product.id] || 0;
         });
         setCartProducts(productData);
         setProductCounts(counts);
@@ -28,16 +27,11 @@ const CartScreen = ({ route, navigation }) => {
   }, [cartItems]);
 
 
-  useEffect(() => {
-    Global.deletedProductsGlobal = deletedProducts;
-    console.log(`Desde CartScreen: ${Global.deletedProductsGlobal}`);
-  }, [deletedProducts]);
-
 
   const handleIncreaseQuantity = (id) => {
     setProductCounts((prevCounts) => ({
       ...prevCounts,
-      [id]: prevCounts[id] + 1,
+      [id]: (prevCounts[id] || 0) + 1,
     }));
   };
 
@@ -48,11 +42,14 @@ const CartScreen = ({ route, navigation }) => {
         newCounts[id] -= 1;
         if (newCounts[id] === 0) {
           setDeletedProducts((prevDeleted) => [...prevDeleted, id]);
+          console.log(`ID eliminado: ${id}`);
         }
       }
-      
       return newCounts;
     });
+    setCartProducts((prevProducts) =>
+      prevProducts.filter((product) => product.id !== id)
+    );
   };
 
   const renderProductCard = ({ item }) => {
@@ -60,12 +57,9 @@ const CartScreen = ({ route, navigation }) => {
     const imageSrc = images?.[0]?.src || null;
     const price = variants?.[0]?.price;
     const count = productCounts[id] || 0;
-
     if (!title || !price || deletedProducts.includes(id)) {
       return null;
     }
-
-
     return (
       <View key={id.toString()} style={styles.card}>
         {imageSrc && <Image source={{ uri: imageSrc }} style={styles.image} />}
@@ -95,10 +89,9 @@ const CartScreen = ({ route, navigation }) => {
   };
 
   const handleGoBack = () => {
-    navigation.navigate("ProductList",  { deletedProducts: deletedProducts } );
+    navigation.navigate("ProductList", { cartItems });
   };
 
-  
   return (
     <View style={styles.container}>
       <FlatList

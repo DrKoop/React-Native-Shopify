@@ -1,13 +1,25 @@
 import React from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { View, TouchableOpacity, Text, Animated } from "react-native";
-import Global from "../Globals";
 
-const BottomTabBar = ({ navigation, cartItems,   }) => {
+const BottomTabBar = ({ navigation }) => {
+  
+  const [cartItems, setCartItems] = React.useState([]);
+  
+/*   React.useEffect(() => {
+    // Obtiene los elementos del carrito del AsyncStorage
+    AsyncStorage.getItem("cartItems")
+      .then((items) => {
+        if (items !== null) {
+          setCartItems(JSON.parse(items));
+        }
+      })
+      .catch((error) => console.log(error));
+  }, []); */
+  
   const scaleValue = React.useRef(new Animated.Value(1)).current;
   const opacityValue = React.useRef(new Animated.Value(1)).current;
-
-  console.log(`ID eliminados desde BottomTabBar :  ${Global.deletedProductsGlobal}`); 
-
+  
   const handlePress = (screenName) => {
     Animated.parallel([
       Animated.timing(scaleValue, {
@@ -21,8 +33,6 @@ const BottomTabBar = ({ navigation, cartItems,   }) => {
         useNativeDriver: true,
       }),
     ]).start(() => {
-
-
       Animated.parallel([
         Animated.timing(scaleValue, {
           toValue: 1,
@@ -37,10 +47,9 @@ const BottomTabBar = ({ navigation, cartItems,   }) => {
       ]).start();
     });
   };
-
+  
   return (
     <View style={[styles.container, { backgroundColor: `rgba(0.25, 100 , .50 , 0.5) ${opacityValue})` }]}>
-
       <TouchableOpacity onPress={() => handlePress("ProductList")}>
         <Animated.View style={[styles.iconContainer, { transform: [{ scale: scaleValue }] }]}>
           <Animated.Image
@@ -50,8 +59,9 @@ const BottomTabBar = ({ navigation, cartItems,   }) => {
         </Animated.View>
         <Text style={styles.text}>Home</Text>
       </TouchableOpacity>
-      {/* VLogica variable cartItems actualizada , aqui */}
-      <TouchableOpacity onPress={() => navigation.navigate("Cart", { cartItems: cartItems })}>
+      
+      {/* Actualiza la variable cartItems aquí */}
+      <TouchableOpacity onPress={() => navigation.navigate("Cart", { cartItems })}>
         <Animated.View style={[styles.iconContainer, { transform: [{ scale: scaleValue }] }]}>
           <Animated.Image
             source={require("../assets/carrito.png")}
@@ -60,7 +70,6 @@ const BottomTabBar = ({ navigation, cartItems,   }) => {
         </Animated.View>
         <Text style={styles.text}>Carrito</Text>
       </TouchableOpacity>
-
     </View>
   );
 };

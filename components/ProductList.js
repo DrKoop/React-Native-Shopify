@@ -1,25 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { LogBox } from "react-native";
 import { Text, View, Image, Button, FlatList, StyleSheet, Dimensions, Animated } from "react-native";
 import { getProducts } from "../api/ShopifyAPI";
 import { useNavigation } from "@react-navigation/native";
 import BottomTabBar from "./BottomTabBar";
 import Spinner from "./Spinner";
-import Global from "../Globals";
-
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
 const ProductList = () => {
-
-/*   const { deletedProducts } = route.params;
-
-  console.log(`ID eliminados desde productlist :  ${deletedProducts}`); */
-
-  const updateIDElimnados = Global.deletedProductsGlobal
-
-  console.log(`ID eliminados desde productlist :  ${updateIDElimnados}`);
-
   const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState(new Set());
   const [showBottomTabBar, setShowBottomTabBar] = useState(true);
@@ -50,17 +38,11 @@ const ProductList = () => {
     navigation.navigate("ProductInfo", { productId, cartItems: Array.from(cartItems) });
   }, [navigation, cartItems]);
 
-
   const handleAddToCart = useCallback(() => {
-    setCartItems((prevItems) => {
-      const newItems = new Set(prevItems);
-      products.forEach((product) => newItems.add(product.id));
-      return newItems;
-    });
-    navigation.navigate("Cart", { cartItems: Array.from(cartItems) });
-  }, [navigation, products, cartItems]);
-
-
+    const updatedCartItems = products.map((product) => product.id);
+    setCartItems(updatedCartItems);
+    navigation.navigate("Cart", { cartItems: updatedCartItems });
+  }, [navigation, cartItems]);
 
   const renderProduct = useCallback(({ item, index }) => {
     const { id, title, images, variants } = item;
@@ -107,7 +89,12 @@ const ProductList = () => {
   return (
     <>
       <AnimatedFlatList
-        data={products}
+        data={products.reduce((acc, curr) => {
+          if (!acc.some((product) => product.id === curr.id)) {
+            acc.push(curr);
+          }
+          return acc;
+        }, [])}
         renderItem={renderProduct}
         keyExtractor={(item) => item?.id?.toString() ?? ""}
         onScroll={Animated.event(
