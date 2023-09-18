@@ -1,38 +1,66 @@
 import React, { useEffect, useState } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Text, View, Image, Button, StyleSheet, FlatList } from "react-native";
-import { addToCart } from "../api/ShopifyAPI";
+import { getProduct } from "../api/ShopifyAPI";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const CartScreen = ({ route, navigation }) => {
-  const { cartItems } = route.params;
-  const [cartProducts, setCartProducts] = useState([]);
+  const { productId } = route.params;
+  const [product, setProduct] = useState(null);
   const [productCounts, setProductCounts] = useState({});
-  const [deletedProducts, setDeletedProducts] = useState([]);
+  const [productIds, setProductIds] = useState([]);
+
+  console.log(`desde carrito : ${productIds}`)
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const productData = await addToCart(cartItems);
-        const counts = {};
-        productData.forEach((product) => {
-          counts[product.id] = productCounts[product.id] || 0;
-        });
-        setCartProducts(productData);
-        setProductCounts(counts);
+        const productData = await getProduct(productId);
+        setProduct(productData);
       } catch (error) {
         console.log(error);
       }
     };
     fetchProduct();
-  }, [cartItems]);
+  }, [productId]);
 
+  useEffect(() => {
+    const loadProductIds = async () => {
+      const storedProductIds = await getProductIds();
+      setProductIds(storedProductIds);
+      saveProductIds([...storedProductIds, productId]);
+    };
+    loadProductIds();
+  }, [productId]);
 
+  const saveProductIds = async (productIds) => {
+    try {
+      await AsyncStorage.setItem("productIds", JSON.stringify(productIds));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getProductIds = async () => {
+    try {
+      const productIds = await AsyncStorage.getItem("productIds");
+      return productIds ? JSON.parse(productIds) : [];
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
+  };
+
+  const checkAndUpdateQuantity = (id) => {
+    const count = productCounts[id] || 0;
+    const updatedCounts = { ...productCounts };
+    if (productIds.filter((productId) => productId === id).length > 1) {
+      updatedCounts[id] = count + 1;
+    }
+    setProductCounts(updatedCounts);
+  };
 
   const handleIncreaseQuantity = (id) => {
-    setProductCounts((prevCounts) => ({
-      ...prevCounts,
-      [id]: (prevCounts[id] || 0) + 1,
-    }));
+    checkAndUpdateQuantity(id);
   };
 
   const handleDecreaseQuantity = (id) => {
@@ -41,70 +69,109 @@ const CartScreen = ({ route, navigation }) => {
       if (newCounts[id] > 0) {
         newCounts[id] -= 1;
         if (newCounts[id] === 0) {
-          setDeletedProducts((prevDeleted) => [...prevDeleted, id]);
-          console.log(`ID eliminado: ${id}`);
+          handleDeleteProduct(id);
         }
       }
       return newCounts;
     });
-    setCartProducts((prevProducts) =>
-      prevProducts.filter((product) => product.id !== id)
-    );
   };
 
-  const renderProductCard = ({ item }) => {
-    const { id, title, images, variants } = item || {};
-    const imageSrc = images?.[0]?.src || null;
-    const price = variants?.[0]?.price;
-    const count = productCounts[id] || 0;
-    if (!title || !price || deletedProducts.includes(id)) {
-      return null;
+  const handleDeleteProduct = (id) => {
+    setProductCounts((prevCounts) => {
+      const newCounts = { ...prevCounts };
+      delete newCounts[id];
+      return newCounts;
+    });
+  };
+
+  const handleGoBack = () => {
+    navigation.goBack();
+  };
+
+  const handleClearCart = async () => {
+    setProductCounts({});
+    setProductIds([]);
+    try {
+      await AsyncStorage.removeItem("productIds");
+    } catch (error) {
+      console.log(error);
     }
+  };
+
+  const renderItem = ({ item }) => {
+    const { id, title, variants, images } = item;
+    const count = productCounts[id] || 0;
+    console.log("Current Product ID:", id);
+
     return (
-      <View key={id.toString()} style={styles.card}>
-        {imageSrc && <Image source={{ uri: imageSrc }} style={styles.image} />}
+      <View style={styles.card}>
+        {images && images.length > 0 && (
+          <Image
+            source={{ uri: images[0].src }}
+            style={styles.image}
+            resizeMode="contain"
+          />
+        )}
         <View style={styles.detailsContainer}>
           <Text style={styles.title}>{title}</Text>
-          <Text>{price}</Text>
-        </View>
-        <View style={styles.buttonContainer}>
-          <View style={styles.quantityContainer}>
-            <Button
-              title="-"
-              onPress={() => handleDecreaseQuantity(id)}
-              style={styles.removeButton}
-            />
+          <Text>{variants && variants.length > 0 ? variants[0].price : null}</Text>
+          <View style={styles.buttonContainer}>
             <View style={styles.itemsCounter}>
               <Text>{count}</Text>
             </View>
-            <Button
-              title="+"
-              onPress={() => handleIncreaseQuantity(id)}
-              style={styles.addButton}
-            />
+            <View style={styles.quantityContainer}>
+              <Button
+                title="-"
+                onPress={() => handleDecreaseQuantity(id)}
+                style={styles.removeButton}
+              />
+              <Button
+                title="+"
+                onPress={() => handleIncreaseQuantity(id)}
+                style={styles.addButton}
+              />
+            </View>
           </View>
         </View>
       </View>
     );
   };
 
-  const handleGoBack = () => {
-    navigation.navigate("ProductList", { cartItems });
-  };
-
   return (
     <View style={styles.container}>
-      <FlatList
-        data={cartProducts}
-        renderItem={renderProductCard}
-        keyExtractor={(item) => item?.id?.toString()}
-        style={styles.flatList}
-      />
+      {product && (
+        <FlatList
+          style={styles.flatList}
+          data={productIds.map((id, index) => {
+            const productData = {
+              id,
+              title: product.title,
+              variants: product.variants,
+              images: product.images,
+              uniqueId: index.toString(),
+            };
+            return productData;
+          })}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.uniqueId}
+          vertical
+        />
+      )}
       <View style={styles.buttonContainer}>
         <Button
           title="Volver"
           onPress={handleGoBack}
           style={styles.backButton}
+        />
+        <Button
+          title="Eliminar Carrito"
+          onPress={handleClearCart}
+          style={styles.clearCartButton}
+        />
+        <Button
+          title="Pagar Ahora"
+          onPress={handleGoBack}
+          style={styles.payNowButton}
         />
       </View>
     </View>
@@ -117,6 +184,7 @@ const styles = StyleSheet.create({
   },
   flatList: {
     marginTop: 5,
+    flex: 1,
   },
   card: {
     width: "100%",
@@ -142,15 +210,22 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   itemsCounter: {
-    marginBottom: 70,
-    padding: 6,
-    borderColor: "red",
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginBottom: 75,
+    padding: 16,
+    borderWidth: 1,
+    borderRadius: 5,
+    borderColor: "black",
+    position: "absolute",
+    top: 0,
+    right: 0,
   },
   buttonContainer: {
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "space-between",
     margin: 5,
-    marginTop: 25,
+    marginTop: 5,
   },
   addButtonContainer: {
     marginRight: 5,
@@ -169,10 +244,16 @@ const styles = StyleSheet.create({
   backButton: {
     backgroundColor: "blue",
   },
+  clearCartButton: {
+    backgroundColor: "orange",
+  },
+  payNowButton: {
+    backgroundColor: "green",
+  },
   quantityContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginRight: 20,
+    justifyContent: "space-between",
   },
 });
 

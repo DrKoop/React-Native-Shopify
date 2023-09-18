@@ -4,15 +4,21 @@ import { getProducts } from "../api/ShopifyAPI";
 import { useNavigation } from "@react-navigation/native";
 import BottomTabBar from "./BottomTabBar";
 import Spinner from "./Spinner";
+/* import {useDeleteID} from './CartScreen' */
+
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
-  const [cartItems, setCartItems] = useState(new Set());
+/*   const [cartItems, setCartItems] = useState(new Set()); */
   const [showBottomTabBar, setShowBottomTabBar] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [scrollY] = useState(new Animated.Value(0));
+
+/*   const deletedProductId = useDeleteID((state) => state.deletedProductId);
+
+   console.log(deletedProductId) */
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -35,14 +41,19 @@ const ProductList = () => {
   const navigation = useNavigation();
 
   const handleViewProduct = useCallback((productId) => {
-    navigation.navigate("ProductInfo", { productId, cartItems: Array.from(cartItems) });
-  }, [navigation, cartItems]);
+    navigation.navigate("ProductInfo", { productId, /* cartItems: Array.from(cartItems) */ });
+  }, [navigation, /* cartItems */]);
 
-  const handleAddToCart = useCallback(() => {
-    const updatedCartItems = products.map((product) => product.id);
+  const handleAddToCart = useCallback((productId) => {
+
+/*     const updatedCartItems = [...cartItems, productId];
     setCartItems(updatedCartItems);
-    navigation.navigate("Cart", { cartItems: updatedCartItems });
-  }, [navigation, cartItems]);
+    console.log(`Desde producList ID agregado : ${productId}`);
+    navigation.navigate("Cart", { cartItems: updatedCartItems , productId}); */
+
+    navigation.navigate("Cart", { productId, /* cartItems: Array.from(cartItems) */ } );
+
+  }, [navigation,/* productId */]);
 
   const renderProduct = useCallback(({ item, index }) => {
     const { id, title, images, variants } = item;
@@ -63,9 +74,9 @@ const ProductList = () => {
         <Text style={styles.title}>{title}</Text>
         {price && <Text style={styles.price}>Precio: <Text>{price}</Text></Text>}
         <View style={styles.buttonContainer}>
-          <Button title="Ver Producto" onPress={() => handleViewProduct(id)} />
+          <Button title="Ver Producto" onPress={() => handleViewProduct(id) } />
           <View style={styles.buttonSeparator} />
-          <Button title="Agregar al carrito" onPress={handleAddToCart} />
+          <Button title="Agregar al carrito" onPress={ () => handleAddToCart(id) } />
         </View>
       </View>
     );
@@ -107,7 +118,7 @@ const ProductList = () => {
         )}
         scrollEventThrottle={16}
       />
-      {showBottomTabBar && <BottomTabBar navigation={navigation} cartItems={Array.from(cartItems)} />}
+      {showBottomTabBar && <BottomTabBar navigation={navigation} /* cartItems={Array.from(cartItems) } */ />}
     </>
   );
 };

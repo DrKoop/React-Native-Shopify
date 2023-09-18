@@ -1,25 +1,12 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { View, TouchableOpacity, Text, Animated } from "react-native";
 
 const BottomTabBar = ({ navigation }) => {
-  
-  const [cartItems, setCartItems] = React.useState([]);
-  
-/*   React.useEffect(() => {
-    // Obtiene los elementos del carrito del AsyncStorage
-    AsyncStorage.getItem("cartItems")
-      .then((items) => {
-        if (items !== null) {
-          setCartItems(JSON.parse(items));
-        }
-      })
-      .catch((error) => console.log(error));
-  }, []); */
-  
+  const [cartItems, setCartItems] = useState([]);
   const scaleValue = React.useRef(new Animated.Value(1)).current;
   const opacityValue = React.useRef(new Animated.Value(1)).current;
-  
+
   const handlePress = (screenName) => {
     Animated.parallel([
       Animated.timing(scaleValue, {
@@ -47,7 +34,7 @@ const BottomTabBar = ({ navigation }) => {
       ]).start();
     });
   };
-  
+
   return (
     <View style={[styles.container, { backgroundColor: `rgba(0.25, 100 , .50 , 0.5) ${opacityValue})` }]}>
       <TouchableOpacity onPress={() => handlePress("ProductList")}>
@@ -59,7 +46,6 @@ const BottomTabBar = ({ navigation }) => {
         </Animated.View>
         <Text style={styles.text}>Home</Text>
       </TouchableOpacity>
-      
       {/* Actualiza la variable cartItems aquí */}
       <TouchableOpacity onPress={() => navigation.navigate("Cart", { cartItems })}>
         <Animated.View style={[styles.iconContainer, { transform: [{ scale: scaleValue }] }]}>
