@@ -24,13 +24,20 @@ const CartScreen = ({ route, navigation }) => {
   }, [productId]);
 
   useEffect(() => {
-    const loadProductIds = async () => {
-      const storedProductIds = await getProductIds();
-      setProductIds(storedProductIds);
-      saveProductIds([...storedProductIds, productId]);
+      const loadProductIds = async () => {
+        const storedProductIds = await getProductIds();
+        setProductIds(storedProductIds);
+      };
+      loadProductIds();
+  }, []);
+  
+  
+  useEffect(() => {
+    const updateProductIds = async () => {
+      await saveProductIds([...productIds, productId]);
     };
-    loadProductIds();
-  }, [productId]);
+    updateProductIds();
+  }, [productIds]);
 
   const saveProductIds = async (productIds) => {
     try {
