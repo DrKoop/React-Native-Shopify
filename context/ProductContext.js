@@ -7,10 +7,10 @@ export const ProductProvider = ({ children }) => {
   const [productIdsContext, setProductIds] = useState([]);
 
   
-
+  //Gestiona y almacena los id, de handleAdd, desde el listProduct y lo comunica con cartScreen
   const addProductId = (productId) => {
     setProductIds([...productIdsContext, productId]);
-    console.log(`desde componente context : ${productId}`)
+    
   };
 
   const removeProductId = (productId) => {

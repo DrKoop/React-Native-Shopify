@@ -4,8 +4,7 @@ import { getProduct } from "../api/ShopifyAPI";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ProductContext } from "../context/ProductContext";
 
-const CartScreen = ({  navigation }) => {
-  
+const CartScreen = ({ navigation }) => {
   const { productIdsContext } = useContext(ProductContext);
   const [product, setProduct] = useState(null);
   const [productCounts, setProductCounts] = useState({});
@@ -25,39 +24,34 @@ const CartScreen = ({  navigation }) => {
   }, [productIdsContext]);
 
   const checkAndUpdateQuantity = (id) => {
-    setProductCounts((prevCounts) => {
-      const count = prevCounts[id] || 0;
-      const updatedCounts = { ...prevCounts };
-      if (updatedCounts[id] > 1) {
-        updatedCounts[id] = count + 1;
-      }
-      return updatedCounts;
-    });
   };
 
   const handleIncreaseQuantity = (id) => {
-    checkAndUpdateQuantity(id);
+    console.log(`aumenta : ${id}`)
+
+    const updatedProductCounts = { ...productCounts };
+    if (updatedProductCounts[id]) {
+      updatedProductCounts[id] += 1;
+    } else {
+      updatedProductCounts[id] = 1;
+    }
+    setProductCounts(updatedProductCounts);
+
   };
 
   const handleDecreaseQuantity = (id) => {
-    setProductCounts((prevCounts) => {
-      const newCounts = { ...prevCounts };
-      if (newCounts[id] > 0) {
-        newCounts[id] -= 1;
-        if (newCounts[id] === 0) {
-          handleDeleteProduct(id);
-        }
-      }
-      return newCounts;
-    });
+    console.log(`resta : ${id}`)
+
+    const updatedProductCounts = { ...productCounts };
+    if (updatedProductCounts[id]) {
+      updatedProductCounts[id] -= 1;
+    } else {
+      updatedProductCounts[id] = 1;
+    }
+    setProductCounts(updatedProductCounts);
   };
 
   const handleDeleteProduct = (id) => {
-    setProductCounts((prevCounts) => {
-      const newCounts = { ...prevCounts };
-      delete newCounts[id];
-      return newCounts;
-    });
   };
 
   const handleGoBack = () => {
@@ -75,8 +69,10 @@ const CartScreen = ({  navigation }) => {
 
   const renderItem = ({ item }) => {
     const { id, title, variants, images } = item;
-    const count = productCounts[id] || 0;
-    console.log("Current Product ID:", id);
+
+    const count = productCounts[id] ;
+    console.log(`desde coun , renderizado : ${count}`)
+
     return (
       <View style={styles.card}>
         {images && images.length > 0 && (
