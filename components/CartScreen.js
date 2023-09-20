@@ -5,8 +5,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ProductContext } from "../context/ProductContext";
 
 const CartScreen = ({ navigation }) => {
-  const { productIdsContext } = useContext(ProductContext);
-  const [product, setProduct] = useState(null);
+  const { productIdsContext, removeProductId } = useContext(ProductContext);
+  const [product, setProduct] = useState([]);
   const [productCounts, setProductCounts] = useState({});
 
   useEffect(() => {
@@ -15,7 +15,15 @@ const CartScreen = ({ navigation }) => {
         const productsData = await Promise.all(
           productIdsContext.map((id) => getProduct(id))
         );
-        setProduct(productsData);
+        const uniqueProducts = productsData.reduce((acc, item) => {
+          if (acc[item.id]) {
+            acc[item.id].count += 1;
+          } else {
+            acc[item.id] = { ...item, count: 1 };
+          }
+          return acc;
+        }, {});
+        setProduct(uniqueProducts);
       } catch (error) {
         console.log(error);
       }
@@ -23,35 +31,32 @@ const CartScreen = ({ navigation }) => {
     fetchProduct();
   }, [productIdsContext]);
 
-  const checkAndUpdateQuantity = (id) => {
-  };
-
   const handleIncreaseQuantity = (id) => {
-    console.log(`aumenta : ${id}`)
+    setProductCounts((prevCounts) => {
+      const updatedCounts = { ...prevCounts };
+      if (updatedCounts[id] && updatedCounts[id].count) {
+        updatedCounts[id].count += 1;
+      } else {
+        updatedCounts[id] = { count: 1 };
+      }
 
-    const updatedProductCounts = { ...productCounts };
-    if (updatedProductCounts[id]) {
-      updatedProductCounts[id] += 1;
-    } else {
-      updatedProductCounts[id] = 1;
-    }
-    setProductCounts(updatedProductCounts);
+      console.log(updatedCounts)
 
+      return { ...updatedCounts };
+    });
   };
-
+  
   const handleDecreaseQuantity = (id) => {
-    console.log(`resta : ${id}`)
-
-    const updatedProductCounts = { ...productCounts };
-    if (updatedProductCounts[id]) {
-      updatedProductCounts[id] -= 1;
-    } else {
-      updatedProductCounts[id] = 1;
-    }
-    setProductCounts(updatedProductCounts);
-  };
-
-  const handleDeleteProduct = (id) => {
+    setProductCounts((prevCounts) => {
+      const updatedCounts = { ...prevCounts };
+      if (updatedCounts[id] && updatedCounts[id].count > 1) {
+        updatedCounts[id].count -= 1;
+      } else {
+        removeProductId(id);
+        delete updatedCounts[id];
+      }
+      return { ...updatedCounts };
+    });
   };
 
   const handleGoBack = () => {
@@ -68,11 +73,7 @@ const CartScreen = ({ navigation }) => {
   };
 
   const renderItem = ({ item }) => {
-    const { id, title, variants, images } = item;
-
-    const count = productCounts[id] ;
-    console.log(`desde coun , renderizado : ${count}`)
-
+    const { id, title, variants, images, count } = item;
     return (
       <View style={styles.card}>
         {images && images.length > 0 && (
@@ -109,14 +110,17 @@ const CartScreen = ({ navigation }) => {
     );
   };
 
+  const uniqueProductIds = Object.keys(product);
+  const uniqueProducts = uniqueProductIds.map((id) => product[id]);
+
   return (
     <View style={styles.container}>
       {product && (
         <FlatList
           style={styles.flatList}
-          data={product.map((item, index) => ({
+          data={uniqueProducts.map((item) => ({
             ...item,
-            uniqueId: index.toString(),
+            uniqueId: item.id.toString(),
           }))}
           renderItem={renderItem}
           keyExtractor={(item) => item.uniqueId}

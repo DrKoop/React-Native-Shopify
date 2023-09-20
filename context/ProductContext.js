@@ -14,7 +14,8 @@ export const ProductProvider = ({ children }) => {
   };
 
   const removeProductId = (productId) => {
-    setProductIds(productIdsContext.filter((id) => id !== productId));
+    const updatedProductIds = productIdsContext.filter((id) => id !== productId);
+    setProductIds(updatedProductIds);
   };
 
   return (
